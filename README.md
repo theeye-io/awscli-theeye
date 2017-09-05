@@ -20,7 +20,7 @@ docker run -i -t --rm\
  -e AWS_DEFAULT_REGION=us-east-1\
  -v $PWD:/data\
  -w /data\
-  theeye/awscli-theeye:latest
+  quay.io/theeye/awscli-theeye:latest
 ```
 
 ## Persist Configuration
@@ -30,7 +30,7 @@ docker run -i -t --rm\
  -v $HOME/.aws:/home/aws/.aws\
  -v $PWD:/data\
  -w /data\
-  theeye/awscli-theeye:latest configure --profile PROFILE_NAME
+  quay.io/theeye/awscli-theeye:latest configure --profile PROFILE_NAME
 ```
 
 ### Shell Alias
@@ -40,5 +40,5 @@ alias aws="docker run -i -t --rm\
  -v $HOME/.aws:/home/aws/.aws\
  -v $PWD:/data\
  -w /data\
-  theeye/awscli-theeye:latest "
+  quay.io/theeye/awscli-theeye:latest "
 ```
