@@ -1,4 +1,11 @@
-* [`Based on`](https://github.com/comodal/alpine-aws-cli/blob/master/Dockerfile) FROM alpine:edge
+* [`Based on Comodal Repository`](https://github.com/comodal/alpine-aws-cli/blob/master/Dockerfile) FROM alpine:edge 
+
+This is an alpine aws-cli with theeye integration, that way you can launch you aws-cli commands from any theeye managed host with docker installed.
+Also you can activate the docker's theeye-agent installed in this Docker. That way you can split your users-roles by limiting their automations to this docker container.
+
+
+Status:
+[![Docker Repository on Quay](https://quay.io/repository/theeye/awscli-theeye/status "Docker Repository on Quay")](https://quay.io/repository/theeye/awscli-theeye) 
 
 ## Supported Tags
 
@@ -13,7 +20,7 @@ docker run -i -t --rm\
  -e AWS_DEFAULT_REGION=us-east-1\
  -v $PWD:/data\
  -w /data\
-  theeye-io-team/awscli-theeye:latest
+  theeye/awscli-theeye:latest
 ```
 
 ## Persist Configuration
@@ -23,7 +30,7 @@ docker run -i -t --rm\
  -v $HOME/.aws:/home/aws/.aws\
  -v $PWD:/data\
  -w /data\
-  theeye-io-team/awscli-theeye:latest configure --profile PROFILE_NAME
+  theeye/awscli-theeye:latest configure --profile PROFILE_NAME
 ```
 
 ### Shell Alias
@@ -33,5 +40,5 @@ alias aws="docker run -i -t --rm\
  -v $HOME/.aws:/home/aws/.aws\
  -v $PWD:/data\
  -w /data\
-  theeye-io-team/awscli-theeye:latest "
+  theeye/awscli-theeye:latest "
 ```
