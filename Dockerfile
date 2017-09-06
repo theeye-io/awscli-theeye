@@ -11,7 +11,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE\
       org.label-schema.schema-version="1.0.0-rc.1"
 
 RUN addgroup -S aws && adduser -S -G aws aws
-
+RUN apk --no-cache add jq
 RUN set -x\
  && apk --no-cache add --virtual .build-deps\
   py2-pip\
@@ -26,5 +26,5 @@ RUN set -x\
 
 USER aws
 
-ENTRYPOINT ["aws"]
-CMD ["help"]
+#ENTRYPOINT ["aws"]
+CMD ["aws help"]
