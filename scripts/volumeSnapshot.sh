@@ -32,7 +32,7 @@ volumes=`aws ec2 describe-volumes --filter Name=attachment.instance-id,Values=$i
 
 for volume in $volumes
 do
-echo Creating snapshot for $volume $(aws ec2 create-snapshot --volume-id $volume --description "ebs-backup-script")
+echo Creating snapshot for $volume $(aws ec2 create-snapshot --volume-id $volume --description "$TAG ebs-backup-script")
 done
 
 done
