@@ -28,6 +28,7 @@ USER aws
 
 WORKDIR /src
 COPY . /src
+RUN chmod 777 /src/scripts/*
 
 #ENTRYPOINT ["aws"]
 CMD ["aws help"]

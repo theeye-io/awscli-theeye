@@ -42,3 +42,16 @@ alias aws="docker run -i -t --rm\
  -w /data\
   quay.io/theeye/awscli-theeye:latest "
 ```
+
+### Bonus Tracks:
+
+*Backup Instance volumes by matching tag-name value:
+```sh
+docker run -it --rm\
+ -e AWS_ACCESS_KEY_ID=\
+ -e AWS_SECRET_ACCESS_KEY=\
+ -e AWS_DEFAULT_REGION=us-east-1\
+ -v $PWD:/data\
+ -w /data\
+  quay.io/theeye/awscli-theeye:latest scripts/volumeSnapshot.sh backup Prod*
+```
