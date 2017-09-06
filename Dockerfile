@@ -23,12 +23,12 @@ RUN set -x\
  && pip --no-cache-dir install awscli\
  && apk del .build-deps\
  && rm -rf /var/cache/apk/*
+RUN chmod 777 /src/scripts/*
 
 USER aws
 
 WORKDIR /src
 COPY . /src
-RUN chmod 777 /src/scripts/*
 
 #ENTRYPOINT ["aws"]
 CMD ["aws help"]
