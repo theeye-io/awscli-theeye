@@ -2,14 +2,14 @@
 #Thanks to https://devopsideas.com/automate-ebs-volume-snapshot/
 
 ACTION=$1
-AGE=$2
-TAG=$3
+AGE=$3
+TAG=$2
 
 if [ -z $ACTION ];
 then
    echo "no params where found:
          $1 backup tag-value, IE: $1 backup prod*  
-         $1 delete days tag-value, IE: $1 delete 3 prod*  "
+         $1 delete tag-value days , IE: $1 delete prod* 3  "
 exit 1
 fi
 
@@ -21,11 +21,13 @@ fi
 
 function backup_ebs () {
 
+echo finding TAG:$TAG for performing $ACTION
+
 instances=`aws ec2 describe-instances --filters "Name=tag-value,Values=$TAG" | jq -r ".Reservations[].Instances[].InstanceId"`
 
 for instance in $instances
 do
-
+echo "$instance matches"
 volumes=`aws ec2 describe-volumes --filter Name=attachment.instance-id,Values=$instance | jq .Volumes[].VolumeId | sed 's/\"//g'`
 
 for volume in $volumes
