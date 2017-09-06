@@ -26,5 +26,8 @@ RUN set -x\
 
 USER aws
 
+WORKDIR /src
+COPY ./scripts /src
+
 #ENTRYPOINT ["aws"]
 CMD ["aws help"]
