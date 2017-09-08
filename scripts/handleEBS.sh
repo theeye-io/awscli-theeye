@@ -3,12 +3,12 @@
 
 function help () {
    echo "help:
-    Snapshot all volumes for instances that matches, requires an instance tag
+    Snapshot all volumes for instances that matches,It requires an instance tag
                  -b=tag-value | --backup=tag-value IE: $1 --backup prod*  
-    Delete all snapshots older than 7 days by default, requires a snapshot tag
+    Delete all snapshots older than 7 days by default, It requires a snapshot tag
                  -d=tag-value (optional) -d days | --delete=tag-value (optional) --days=NUMBER IE: $1 --delete=prod* --days=3  
-    Attach the last snapshot as a volume to an instance, requieres id-instance and snapshot tag.
-                -i=instance-id -a=tag-value  | --attach=tag-value --instance=instance-id
+    Attach the last snapshot as a volume to an instance, requieres id-instance and snapshot tag. By default It creates a gp2 volume type.
+                 -i=instance-id -a=tag-value | --attach=tag-value --instance=instance-id 
     "
    exit 1
 }
@@ -74,7 +74,7 @@ function attach_ebs () {
      echo finding availability zone for "$INSTANCEID"
      echo "Todo Add IOPS before volume creation"
      availabilityZone=$(aws ec2 describe-instances --instance-ids "$INSTANCEID"|jq .Reservations[].Instances[].Placement.AvailabilityZone| sed 's/\"//g')
-     volumeID=$(aws ec2 create-volume --region us-east-1 --availability-zone "$availabilityZone" --snapshot-id "$snapshot"|jq .VolumeId |sed 's/\"//g' )
+     volumeID=$(aws ec2 create-volume --region us-east-1 --availability-zone "$availabilityZone" --snapshot-id "$snapshot"  --volume-type gp2 --tag-specifications "ResourceType=volume,Tags=[{Key=Name,Value=created from $TAG ebs-tag-script }]" |jq .VolumeId |sed 's/\"//g' )
      echo waiting for volume "$volumeID "to become available
      aws ec2 wait volume-available --volume-ids "$volumeID"
      aws ec2 attach-volume --volume-id "$volumeID" --instance-id "$INSTANCEID" --device /dev/sdn
@@ -93,7 +93,7 @@ function delete_snapshots () {
    ENDDATE="$(date -d "$SNAPSHOTDATE" +%s)"
    INTERVAL=$(( (STARTDATE - ENDDATE) / (60*60*24) ))
    
-   if (( $INTERVAL >= $AGE ));
+   if (($INTERVAL >= $AGE ))
    then
    echo "Deleting snapshot --> $snapshot"
    aws ec2 delete-snapshot --snapshot-id "$snapshot"
