@@ -39,8 +39,8 @@ docker run -it --rm\
 *Snapshots Cleanup.Remove snapshots older than 5 days.:
 ```sh
 docker run -it --rm \ 
--e AWS_ACCESS_KEY_ID=AKIAICMSBCLFKZLHQZ3Q \ 
--e AWS_SECRET_ACCESS_KEY=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 \
+-e AWS_ACCESS_KEY_ID=XXXXXXX \ 
+-e AWS_SECRET_ACCESS_KEY=XXXXXXXXX \
 -e AWS_DEFAULT_REGION=us-east-1 \
 quay.io/theeye/awscli-theeye:latest scripts/handleEBS.sh --delete=BWS-P* --days=1
 ```
