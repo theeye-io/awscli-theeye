@@ -4,11 +4,11 @@
 function help () {
    echo "help:
     Snapshot all volumes for instances that matches,It requires an instance tag
-                 -b=tag-value | --backup=tag-value IE: $1 --backup prod*  
+                 --backup=tag-value IE: $1 --backup prod*  
     Delete all snapshots older than 7 days by default, It requires a snapshot tag
-                 -d=tag-value (optional) -d days | --delete=tag-value (optional) --days=NUMBER IE: $1 --delete=prod* --days=3  
+                 --delete=tag-value (optional) --days=NUMBER IE: $1 --delete=prod* --days=3  
     Attach the last snapshot as a volume to an instance, requieres id-instance and snapshot tag. By default It creates a gp2 volume type.
-                 -i=instance-id -a=tag-value | --attach=tag-value --instance=instance-id 
+                 --attach=tag-value --instance=instance-id 
     "
    exit 1
 }
@@ -17,22 +17,22 @@ function help () {
 for i in "$@"
 do
   case $i in
-    -b=*|--backup=*)
+    --backup=*)
       TAG="${i#*=}"
       ACTION=backup
       ;;
-    -d=*|--delete=*)
+    --delete=*)
       TAG="${i#*=}"
       ACTION=delete
       ;;
-    -a=*|--attach=*)
+    --attach=*)
       TAG="${i#*=}"
       ACTION=attach
       ;;
-    -i=*|--instance=*)
+    --instance=*)
       INSTANCEID="${i#*=}"
       ;;
-    -d=*|--days=*)
+    --days=*)
       AGE="${i#*=}"
       if ! [[ $AGE =~ ^[0-9]+$ ]] ; then
         echo "Age is invalid Asuming default 7"

@@ -23,35 +23,45 @@ docker run -i -t --rm\
   quay.io/theeye/awscli-theeye:latest
 ```
 
-## Persist Configuration
+
+## Operations supported by custom scripting
+### EBS Handle - Volume Backup / Snapshots deletion / Attach snapshot as a new volume
+*Volume Backup
+```sh
+docker run -it --rm\ 
+ -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
+ -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX \
+ -e AWS_DEFAULT_REGION=us-east-1 \  
+ quay.io/theeye/awscli:latest scripts/handleEBS.sh --backup=BWS-Private*
+```
+
+
+*Snapshots Cleanup.Remove snapshots older than 5 days.:
+```sh
+docker run -it --rm \ 
+-e AWS_ACCESS_KEY_ID=AKIAICMSBCLFKZLHQZ3Q \ 
+-e AWS_SECRET_ACCESS_KEY=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 \
+-e AWS_DEFAULT_REGION=us-east-1 \
+quay.io/theeye/awscli-theeye:latest scripts/handleEBS.sh --delete=BWS-P* --days=1
+```
+
+*Create volume from saved snapshot and attach to instance
+```sh
+docker run -it --rm\
+-e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
+-e AWS_SECRET_ACCESS_KEY=XXXXXXXX \
+-e AWS_DEFAULT_REGION=us-east-1 \
+  quay.io/theeye/awscli-theeye:latest scripts/handleEBS.sh --attach=BWS-Private* --instance=Instance-ID
+```
+
+
+### Bonus Tracks:
+
+## Persist Configuration, and mount your path inside the docker for scripting purpouses 
 
 ```sh
 docker run -i -t --rm\
  -v $HOME/.aws:/home/aws/.aws\
- -v $PWD:/data\
- -w /data\
+ -v $PWD:/src -w /src\
   quay.io/theeye/awscli-theeye:latest configure --profile PROFILE_NAME
-```
-
-### Shell Alias
-
-```sh
-alias aws="docker run -i -t --rm\
- -v $HOME/.aws:/home/aws/.aws\
- -v $PWD:/data\
- -w /data\
-  quay.io/theeye/awscli-theeye:latest "
-```
-
-### Bonus Tracks:
-
-*Backup Instance volumes by matching tag-name value:
-```sh
-docker run -it --rm\
- -e AWS_ACCESS_KEY_ID=\
- -e AWS_SECRET_ACCESS_KEY=\
- -e AWS_DEFAULT_REGION=us-east-1\
- -v $PWD:/data\
- -w /data\
-  quay.io/theeye/awscli-theeye:latest scripts/volumeSnapshot.sh backup Prod*
 ```
