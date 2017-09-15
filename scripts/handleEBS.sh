@@ -9,6 +9,8 @@ function help () {
                  --delete=tag-value (optional) --days=NUMBER IE: $1 --delete=prod* --days=3  
     Attach the last snapshot as a volume to an instance, requieres id-instance and snapshot tag. By default It creates a gp2 volume type.
                  --attach=tag-value --instance=instance-id 
+    Create an AMI from the last snapshot, requires a tag. Optional an instance-name
+                 --create=tag-value (optional) --instance=aNewAMIName
     "
    exit 1
 }
@@ -31,6 +33,7 @@ do
       ;;
     --instance=*)
       INSTANCEID="${i#*=}"
+      INSTANCENAME=$INSTANCEID #instance works for both id and name settings
       ;;
     --days=*)
       AGE="${i#*=}"
@@ -39,12 +42,13 @@ do
         AGE=7
             fi
       ;;
-#   --default)
-#     DEFAULT=YES
-#     ;;
+    --create)
+      TAG="${i#*=}"
+      ACTION=create
+      ;;
       *)
-	   echo no arguments found
-           help
+      echo no arguments found
+      help
       # unknown option
       ;;
   esac
@@ -101,6 +105,11 @@ function delete_snapshots () {
    
    done
 }
+function createfrom_ebs () {
+     echo "finding newest snapshot for provided TAG:$TAG for performing $ACTION"
+     snapshot=$(aws ec2 describe-snapshots --filters Name=description,Values="$TAG ebs-backup-script" | jq '.[]|max_by(.StartTime)|.SnapshotId' | sed 's/\"//g')
+     createAMI=$(aws ec2 register-image --name $INSTANCENAME --architecture x86_64  --virtualization-type hvm  --root-device-name "/dev/sda1" --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=$snapshot,VolumeSize=390,VolumeType=gp2}")
+}
 ##end functions
 
 case $ACTION in
@@ -127,7 +136,14 @@ case $ACTION in
   fi
   attach_ebs
 ;;
-
+"create")
+  if [ -z "$INSTANCENAME" ];
+  then
+    echo "--instance=AMIName is undefined, using $TAG as default... "
+    INSTANCENAME="$TAG-from-snapshot"
+  fi
+  createfrom_ebs
+;;
 *)
   help "$@"
 ;;
