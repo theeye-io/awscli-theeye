@@ -4,7 +4,7 @@
 function help () {
    echo "help:
    Launch Spot Instance By using TAG. It finds the Last AMI snapshot, Requires Zone, Optional TargetGroup for ELB, and overBid ( It calculates the biggest price for the past 4 hours plus this setting default is 0.002).
-   --launchSpot=tag-value --instancetype=m1.small --zone=us-east-1e  (optional) --keypair=UseYourKey --targetgroup=arn:aws:elasticloadbalancing:us-west-2:123456789012:targetgroup/my-targets/73e2d6bc24d8a067 --overbid=0.003 --userdata='yourBase64EncodedScript'
+   --launchSpot=tag-value --instancetype=m1.small --zone=us-east-1e  (optional) --keypair=UseYourKey --targetgroup=arn:aws:elasticloadbalancing:us-west-2:123456789012:targetgroup/my-targets/73e2d6bc24d8a067 --overbid=0.003 --securitygroups='securitygroupID1,securitygroupID2' --userdata='yourBase64EncodedScript'
     "
    exit 1
 }
@@ -35,6 +35,9 @@ do
     --keypair=*)
       KEYPAIR="${i#*=}"
       ;;
+    --securitygroups=*)
+      SECURITYGROUPS="${i#*=}"
+      ;;
   esac
 done
 
@@ -57,8 +60,8 @@ function delete_snapshots () {
    
    done
 }
-function launchSpot () {
-     #Tricky Part, take the last four hours max_price bidding, and adds 0.002 cents.
+function prepareVariables () {
+   #Tricky Part, take the last four hours max_price bidding, and adds 0.002 cents.
      if [ -z "$OVERBID" ];then
       OVERBID=0.0002
      fi
@@ -69,21 +72,32 @@ function launchSpot () {
      fi
      maxiumPriceLastFourHours=$(aws ec2 describe-spot-price-history --availability-zone "$ZONE" --product-description "Linux/UNIX" --instance-types r4.large --start-time "$(date --date="@$(($(date +%s) - 14400))" "+%Y-%m-%dT-%H:%M:%S")"|jq -r '.SpotPriceHistory[].SpotPrice'|sort -u|tail -n1)
      bidPrice=$(python -c "print $maxiumPriceLastFourHours+$OVERBID")
-     # Ends Tricky Bid Calculation.
-     echo "finding newest AMI for provided TAG:$TAG for performing $ACTION"
-     newestAMI=$(aws ec2 describe-images --filters Name=image-type,Values=machine Name=is-public,Values=false Name=name,Values="$TAG" | jq '.[]|max_by(.CreationDate)|.ImageId'|sed 's/\"//g')
-     echo DEBUG
-     echo "Launching a $INSTANCE_TYPE using AMI $newestAMI"
-     #Echo finding the subnet ID for a given Zone
-     vpcID=$(aws ec2 describe-subnets --filters "Name=availability-zone,Values=$ZONE" | jq -r .Subnets[].SubnetId)
+   # Ends Tricky Bid Calculation.
+   #Other variables.
      userdata=""
      if [ -z $USERDATA ];then
         echo "No user data defined"
      else
-       echo "Converting $USERDATA to base64" 
        userdata=",\"UserData\":\"$USERDATA\""
      fi
-     spotReq=$(aws ec2 request-spot-instances --spot-price "$bidPrice" --instance-count 1 --type "one-time" --launch-specification "{$KEYPAIR \"ImageId\":\"$newestAMI\",\"InstanceType\": \"$INSTANCE_TYPE\",\"SubnetId\":\"$vpcID\" $userdata }"|jq .SpotInstanceRequests[].SpotInstanceRequestId| sed 's/"//g')
+     if [ -z $SECURITYGROUPS ];then
+        echo "No security groups defined"
+     else
+       securityGroups=",\"SecurityGroupIds\":[\"$SECURITYGROUPS\"]"
+     fi
+}
+
+function launchSpot () {
+     prepareVariables
+     echo "finding newest AMI for provided TAG:$TAG for performing $ACTION"
+     newestAMI=$(aws ec2 describe-images --filters Name=image-type,Values=machine Name=is-public,Values=false Name=name,Values="$TAG" | jq '.[]|max_by(.CreationDate)|.ImageId'|sed 's/\"//g')
+     echo "Launching a $INSTANCE_TYPE using AMI $newestAMI"
+     #Echo finding the subnet ID for a given Zone
+     vpcID=$(aws ec2 describe-subnets --filters "Name=availability-zone,Values=$ZONE" | jq -r .Subnets[].SubnetId)
+     spotReq=$(aws ec2 request-spot-instances --spot-price "$bidPrice" --instance-count 1 --type "one-time" --launch-specification " 
+	       {$KEYPAIR \"ImageId\":\"$newestAMI\",  
+	       \"InstanceType\": \"$INSTANCE_TYPE\", 
+	       \"SubnetId\":\"$vpcID\" $userdata $securityGroups }"|jq .SpotInstanceRequests[].SpotInstanceRequestId| sed 's/"//g')
      if [ -z $TARGET ];then
        echo " Request $spotReq subbmited"
      else
