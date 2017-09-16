@@ -7,24 +7,29 @@ Also you can activate the docker's theeye-agent installed in this Docker. That w
 Status: [![Docker Repository on Quay](https://quay.io/repository/theeye/awscli-theeye/status "Docker Repository on Quay")](https://quay.io/repository/theeye/awscli-theeye) 
 
 #Problem
+
 ##First issue
 I wasn't able to find an easy way for auto-scaling spot instances.
 AWS allows me to create an auto-scaling group and It works fine if the spot instance suddenly stops but when if the bid for that instance rises, my spot instances shutdowns and auto-scaling group stops working.
 ##Second issue
+
 While I was working on a BTC (Bitcoin) which takes at least 3 days to by full synced I faced I need a good backup, that way I can handle a BTC H.A by using spot instances and If some spot instance goes down I only need one or two ours to get it online again.
+
 ##Third issue
 I tried to snapshot running instances but stoping and starting bitcoind service wasn't a good solution.
 
 #Solution
-##I wrote several scripts for performing Daily tasks such as:
+
+I wrote several scripts for performing Daily tasks such as:
 
 *1 - Volume snapshots from AMI tags.
 *2 - AMI creation from 1-
 *3 - Volume, Snapshots and AMIs Housekeeping.
 
-##Also I created a customized monitor for watching instances inside targetgroup
-##Then I created a onetime spotInstance launcher with bid calculation, that way I always get the spot Instances I need to be working.
-##Finally I schedule those tasks, I create that monitor and put everything togeter on [Theeye](https://theeye.io)
+Also I created a customized monitor for watching instances inside targetgroup.
+Then I created a onetime spotInstance launcher with bid calculation, that way I always get the spot Instances I need to be working.
+Finally I schedule those tasks, I create that monitor and put everything togeter on [Theeye](https://theeye.io)
+
 
 
 ## Oneshot Docker Run
@@ -44,6 +49,7 @@ docker run -i -t --rm\
 ### EBS Handle - Supports serveral actions such as: Volume Backup / Snapshots deletion / Attach snapshot as a new volume / Create an AMI from Snapshot and Cleanup unused Volumes
 
 usage: I.E for Volume Backup
+
 ```sh
 docker run -it --rm\ 
  -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
@@ -55,6 +61,7 @@ docker run -it --rm\
 other valids usages:
 
     Snapshot all volumes for instances that matches,It requires an instance tag
+
 ```sh 
 scripts/handleEBS.sh --backup=tag-value IE:  --backup prod* 
 ``` 
@@ -72,11 +79,13 @@ scripts/handleEBS.sh --attach=tag-value --instance=instance-id
 ``` 
     
     Create an AMI from the last snapshot, requires a tag. Optional an instance-name
+
 ```sh
  scripts/handleEBS.sh  --create=tag-value (optional) --instance=aNewAMIName 
 ``` 
     
     *Remove all unused Volumes
+
 ```sh 
   scripts/handleEBS.sh --remove=Region , I.E --remove=us-east-1 
 ```
@@ -91,6 +100,7 @@ docker run -it --rm\
 ```
 
 other available settings:
+
 ```sh
  scripts/handleSpotInstances.sh  --launchSpot=tag-value --instancetype=m1.small --zone=us-east-1e  (optional) --keypair=UseYourKey --targetgroup=arn:aws:elasticloadbalancing:us-west-2:123456789012:targetgroup/my-targets/73e2d6bc24d8a067 --overbid=0.003 --userdata='yourBase64EncodedScript'
 ```
