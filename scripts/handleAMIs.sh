@@ -3,7 +3,6 @@
 
 function help () {
    echo "help:
-   Launch Spot Instance By using TAG. It finds the Last AMI snapshot, Requires Zone, Optional TargetGroup for ELB, and overBid ( It calculates the biggest price for the past 4 hours plus this setting default is 0.002).
     Delete all snapshots older than 7 days by default, It requires a snapshot tag
                  --delete=tag-value (optional) --days=NUMBER IE: $1 --delete=prod* --days=3  
     "

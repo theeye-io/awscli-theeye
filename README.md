@@ -25,8 +25,9 @@ docker run -i -t --rm\
 
 
 ## Operations supported by custom scripting
-### EBS Handle - Volume Backup / Snapshots deletion / Attach snapshot as a new volume
-*Volume Backup
+### EBS Handle - Supports serveral actions such as: Volume Backup / Snapshots deletion / Attach snapshot as a new volume / Create an AMI from Snapshot and Cleanup unused Volumes
+
+usage: I.E for Volume Backup
 ```sh
 docker run -it --rm\ 
  -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
@@ -35,26 +36,18 @@ docker run -it --rm\
  quay.io/theeye/awscli:latest scripts/handleEBS.sh --backup=BWS-Private*
 ```
 
+other valids usages:
 
-*Snapshots Cleanup.Remove snapshots older than 5 days.:
-```sh
-docker run -it --rm \ 
--e AWS_ACCESS_KEY_ID=XXXXXXX \ 
--e AWS_SECRET_ACCESS_KEY=XXXXXXXXX \
--e AWS_DEFAULT_REGION=us-east-1 \
-quay.io/theeye/awscli-theeye:latest scripts/handleEBS.sh --delete=BWS-P* --days=1
-```
-
-*Create volume from saved snapshot and attach to instance
-```sh
-docker run -it --rm\
--e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
--e AWS_SECRET_ACCESS_KEY=XXXXXXXX \
--e AWS_DEFAULT_REGION=us-east-1 \
-  quay.io/theeye/awscli-theeye:latest scripts/handleEBS.sh --attach=BWS-Private* --instance=Instance-ID
-```
-
-*Turn Snapshot Into AMI
+    *Snapshot all volumes for instances that matches,It requires an instance tag
+```                 --backup=tag-value IE:  --backup prod* ``` 
+    *Delete all snapshots older than 7 days by default, It requires a snapshot tag
+```                 --delete=tag-value (optional) --days=NUMBER IE:  --delete=prod* --days=3 ``` 
+    *Attach the last snapshot as a volume to an instance, requieres id-instance and snapshot tag. By default It creates a gp2 volume type.
+  ```               --attach=tag-value --instance=instance-id``` 
+    *Create an AMI from the last snapshot, requires a tag. Optional an instance-name
+```                 --create=tag-value (optional) --instance=aNewAMIName ``` 
+    *Remove all unused Volumes
+  ```               --remove=Region , I.E --remove=us-east-1 ```
 
 
 ##Handle Spot Instances
@@ -64,6 +57,21 @@ docker run -it --rm\
 -e AWS_SECRET_ACCESS_KEY=XXXXXXXX \
 -e AWS_DEFAULT_REGION=us-east-1 \
   quay.io/theeye/awscli-theeye:latest scripts/handleSpotInstances.sh --launchSpot=YourTag* --instancetype=c3.large --zone=us-east-1e --keypair=YourKey --overbid=0.001
+```
+
+other available settings:
+```sh
+ --launchSpot=tag-value --instancetype=m1.small --zone=us-east-1e  (optional) --keypair=UseYourKey --targetgroup=arn:aws:elasticloadbalancing:us-west-2:123456789012:targetgroup/my-targets/73e2d6bc24d8a067 --overbid=0.003 --userdata='yourBase64EncodedScript'
+
+```
+
+##Clean Up unused AMIs
+```sh
+docker run -it --rm\
+-e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
+-e AWS_SECRET_ACCESS_KEY=XXXXXXXX \
+-e AWS_DEFAULT_REGION=us-east-1 \
+  quay.io/theeye/awscli-theeye:latest scripts/handleAMIs.sh --launchSpot=YourTag* --instancetype=c3.large --zone=us-east-1e --keypair=YourKey --overbid=0.001
 ```
 
 
