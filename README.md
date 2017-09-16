@@ -105,6 +105,9 @@ other available settings:
  scripts/handleSpotInstances.sh  --launchSpot=tag-value --instancetype=m1.small --zone=us-east-1e  (optional) --keypair=UseYourKey --targetgroup=arn:aws:elasticloadbalancing:us-west-2:123456789012:targetgroup/my-targets/73e2d6bc24d8a067 --overbid=0.003 --userdata='yourBase64EncodedScript'
 ```
 
+## Monitor Healthy instances for a given targetGroup and desired instances
+bash targetGroups.sh arn:aws:elasticloadbalancing:us-east-1:xxxxxx:targetgroup/xxxxxx/xxxxx 3
+
 ## Clean Up unused AMIs
 ```sh
 docker run -it --rm\

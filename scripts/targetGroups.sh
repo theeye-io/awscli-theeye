@@ -10,7 +10,8 @@ else
 number=$2
 fi
 
-healthyInstances=$(aws elbv2 describe-target-health --target-group-arn $1|jq .TargetHealthDescriptions[].Target.Id|wc -l)
+
+healthyInstances=$(aws elbv2 describe-target-health --target-group-arn $1|jq .TargetHealthDescriptions[].TargetHealth.State|grep healthy|wc -l)
 status="normal"
 if [ $number -gt $healthyInstances ];then
  status="failure"
