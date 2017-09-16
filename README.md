@@ -38,19 +38,25 @@ docker run -it --rm\
 
 other valids usages:
 
-    *Snapshot all volumes for instances that matches,It requires an instance tag
-```                 --backup=tag-value IE:  --backup prod* ``` 
-    *Delete all snapshots older than 7 days by default, It requires a snapshot tag
-```                 --delete=tag-value (optional) --days=NUMBER IE:  --delete=prod* --days=3 ``` 
-    *Attach the last snapshot as a volume to an instance, requieres id-instance and snapshot tag. By default It creates a gp2 volume type.
-  ```               --attach=tag-value --instance=instance-id``` 
-    *Create an AMI from the last snapshot, requires a tag. Optional an instance-name
-```                 --create=tag-value (optional) --instance=aNewAMIName ``` 
+    Snapshot all volumes for instances that matches,It requires an instance tag
+    
+```sh --backup=tag-value IE:  --backup prod* ``` 
+    
+    Delete all snapshots older than 7 days by default, It requires a snapshot tag
+    
+```sh --delete=tag-value (optional) --days=NUMBER IE:  --delete=prod* --days=3 ``` 
+    
+    Attach the last snapshot as a volume to an instance, requieres id-instance and snapshot tag. By default It creates a gp2 volume type.
+    
+  ```sh --attach=tag-value --instance=instance-id``` 
+    
+    Create an AMI from the last snapshot, requires a tag. Optional an instance-name
+```sh  --create=tag-value (optional) --instance=aNewAMIName ``` 
+    
     *Remove all unused Volumes
-  ```               --remove=Region , I.E --remove=us-east-1 ```
+  ```sh --remove=Region , I.E --remove=us-east-1 ```
 
-
-##Handle Spot Instances
+## Handle Spot Instances
 ```sh
 docker run -it --rm\
 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
@@ -65,7 +71,7 @@ other available settings:
 
 ```
 
-##Clean Up unused AMIs
+## Clean Up unused AMIs
 ```sh
 docker run -it --rm\
 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
