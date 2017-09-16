@@ -11,6 +11,8 @@ function help () {
                  --attach=tag-value --instance=instance-id 
     Create an AMI from the last snapshot, requires a tag. Optional an instance-name
                  --create=tag-value (optional) --instance=aNewAMIName
+    Remove all unused Volumes
+                 --remove=Region , I.E --remove=us-east-1
     "
    exit 1
 }
@@ -22,35 +24,39 @@ do
     --backup=*)
       TAG="${i#*=}"
       ACTION=backup
-      ;;
+    ;;
     --delete=*)
       TAG="${i#*=}"
       ACTION=delete
-      ;;
+    ;;
     --attach=*)
       TAG="${i#*=}"
       ACTION=attach
-      ;;
+    ;;
     --instance=*)
       INSTANCEID="${i#*=}"
       INSTANCENAME=$INSTANCEID #instance works for both id and name settings
-      ;;
+    ;;
     --days=*)
       AGE="${i#*=}"
       if ! [[ $AGE =~ ^[0-9]+$ ]] ; then
         echo "Age is invalid Asuming default 7"
         AGE=7
-            fi
-      ;;
-    --create)
+      fi
+    ;;
+    --create=*)
       TAG="${i#*=}"
       ACTION=create
-      ;;
-      *)
-      echo no arguments found
-      help
-      # unknown option
-      ;;
+    ;;
+    --remove=*)
+      ZONE="${i#*=}"
+      ACTION=remove
+    ;;
+#      *)
+#      echo no arguments found
+#      help
+#      # unknown option
+#     ;;
   esac
 done
 
@@ -58,7 +64,7 @@ done
 function backup_ebs () {
    
    echo "finding TAG:$TAG for performing $ACTION"
-   
+   flag=0 
    for instance in $(aws ec2 describe-instances --filters "Name=tag-value,Values=$TAG" | jq -r ".Reservations[].Instances[].InstanceId")
    do
      echo "$instance matches"
@@ -68,8 +74,11 @@ function backup_ebs () {
      do
        echo "Creating snapshot for $volume $(aws ec2 create-snapshot --volume-id "$volume" --description "$TAG ebs-backup-script")"
      done
-     
+    flag=1 
    done
+   if [ $flag -eq 0 ];then 
+	   echo "I was unable to find any suitable instance with the TAG:$TAG provided"
+   fi
 }
 
 function attach_ebs () {
@@ -108,7 +117,24 @@ function delete_snapshots () {
 function createfrom_ebs () {
      echo "finding newest snapshot for provided TAG:$TAG for performing $ACTION"
      snapshot=$(aws ec2 describe-snapshots --filters Name=description,Values="$TAG ebs-backup-script" | jq '.[]|max_by(.StartTime)|.SnapshotId' | sed 's/\"//g')
+     if [ -z $snapshot ];then
+       echo "I was unable to find any suitable snapshot using $TAG"
+     else
+       INSTANCENAME="$INSTANCENAME-$(date +"%m_%d")" 
+       echo "Creating instance $INSTANCENAME from Snapshot $snapshot"
+     fi
      createAMI=$(aws ec2 register-image --name $INSTANCENAME --architecture x86_64  --virtualization-type hvm  --root-device-name "/dev/sda1" --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=$snapshot,VolumeSize=390,VolumeType=gp2}")
+}
+
+function remove_unused_volumes {
+	for regions in $ZONE
+	do
+		for volumes in $(aws ec2 describe-volumes --region $ZONE --output text| grep available | awk '{print $9}' | grep vol| tr '\n' ' ')
+		do
+			echo "Deleting $volumes < "
+			aws ec2 delete-volume --region $ZONE --volume-id $volumes
+		done
+	done
 }
 ##end functions
 
@@ -144,7 +170,12 @@ case $ACTION in
   fi
   createfrom_ebs
 ;;
+"remove")
+  remove_unused_volumes
+;;
 *)
+  echo "Invalid Arguments: "
+  echo "$@" 
   help "$@"
 ;;
 
