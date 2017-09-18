@@ -44,7 +44,9 @@ docker run -i -t --rm\
 ```
 
 ## Operations supported by custom scripting
-### EBS Handle - Supports serveral actions such as: Volume Backup / Snapshots deletion / Attach snapshot as a new volume / Create an AMI from Snapshot and Cleanup unused Volumes
+### EBS Handle - Supports serveral actions such as: Volume Backup / Snapshots deletion / Attach snapshot as a new volume / 
+
+### Create an AMI from Snapshot and Cleanup unused Volumes
 
 usage: I.E for Volume Backup
 
@@ -56,7 +58,7 @@ docker run -it --rm\
  quay.io/theeye/awscli:latest scripts/handleEBS.sh --backup=BWS-Private*
 ```
 
-* other valids usages:
+### Other valids usages:
 
 * Snapshot all volumes for instances that matches,It requires an instance tag
 
