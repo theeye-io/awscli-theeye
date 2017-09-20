@@ -1,3 +1,4 @@
+#!/bin/bash
 echo use by: $0 arnID numberOfDesiredInstances
 if [ -z $1 ];then
 	echo "Target group ARN wasnt defined"
