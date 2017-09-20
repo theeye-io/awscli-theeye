@@ -114,7 +114,7 @@ docker run -it --rm\
 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
 -e AWS_SECRET_ACCESS_KEY=XXXXXXXX \
 -e AWS_DEFAULT_REGION=us-east-1 \
-  quay.io/theeye/awscli-theeye:latest scripts/handleAMIs.sh --launchSpot=YourTag* --instancetype=c3.large --zone=us-east-1e --keypair=YourKey --overbid=0.001
+  quay.io/theeye/awscli-theeye:latest scripts/handleAMIs.sh --delete=Prod* --days=3
 ```
 
 ### Bonus Tracks:
