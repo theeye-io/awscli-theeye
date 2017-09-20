@@ -10,7 +10,7 @@ function help () {
     Attach the last snapshot as a volume to an instance, requieres id-instance and snapshot tag. By default It creates a gp2 volume type.
                  --attach=tag-value --instance=instance-id 
     Create an AMI from the last snapshot, requires a tag. Optional an instance-name
-                 --create=tag-value (optional) --instance=aNewAMIName
+                 --create=tag-value --volumesize=400 (optional) --instance=aNewAMIName
     Remove all unused Volumes
                  --remove=Region , I.E --remove=us-east-1
     "
@@ -42,6 +42,15 @@ do
       if ! [[ $AGE =~ ^[0-9]+$ ]] ; then
         echo "Age is invalid Asuming default 7"
         AGE=7
+      fi
+    ;;
+    --volumesize=*)
+      VOLUMESIZE="${i#*=}"
+      if ! [[ $VOLUMESIZE =~ ^[0-9]+$ ]] ; then
+        echo "Volume Size is invalid Asuming default"
+        VOLUMESIZE=""
+      else
+        VOLUMESIZE=",VolumeSize=$VOLUMESIZE"
       fi
     ;;
     --create=*)
@@ -123,7 +132,8 @@ function createfrom_ebs () {
        INSTANCENAME="$INSTANCENAME-$(date +"%m_%d")" 
        echo "Creating instance $INSTANCENAME from Snapshot $snapshot"
      fi
-     createAMI=$(aws ec2 register-image --name $INSTANCENAME --architecture x86_64  --virtualization-type hvm  --root-device-name "/dev/sda1" --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=$snapshot,VolumeSize=390,VolumeType=gp2}")
+     createAMI=$(aws ec2 register-image --name $INSTANCENAME --architecture x86_64  --virtualization-type hvm  --root-device-name "/dev/sda1" --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=$snapshot $VOLUMESIZE,VolumeType=gp2}")
+     echo "Done Creating AMI from EBS $createAMI"
 }
 
 function remove_unused_volumes {

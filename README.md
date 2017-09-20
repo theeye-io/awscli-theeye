@@ -81,7 +81,7 @@ scripts/handleEBS.sh --attach=tag-value --instance=instance-id
     Create an AMI from the last snapshot, requires a tag. Optional an instance-name
 
 ```sh
- scripts/handleEBS.sh  --create=tag-value (optional) --instance=aNewAMIName 
+ scripts/handleEBS.sh  --create=tag-value --volumesize=400 (in GB)  (optional) --instance=aNewAMIName 
 ``` 
     
     *Remove all unused Volumes
