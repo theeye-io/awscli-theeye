@@ -55,7 +55,7 @@ docker run -it --rm\
  -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
  -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX \
  -e AWS_DEFAULT_REGION=us-east-1 \  
- quay.io/theeye/awscli:latest scripts/handleEBS.sh --backup=BWS-Private*
+ quay.io/theeye/awscli-theeye:latest scripts/handleEBS.sh --backup=BWS-Private*
 ```
 
 ### Other valids usages:
