@@ -46,9 +46,9 @@ docker run -i -t --rm\
 ## Operations supported by custom scripting
 ### EBS Handle - Supports serveral actions such as: Volume Backup / Snapshots deletion / Attach snapshot as a new volume / 
 
-### Create an AMI from Snapshot and Cleanup unused Volumes
+### I.E for Volume Backup, 
+Snapshot all volumes for instances that matches,It requires an instance tag
 
-usage: I.E for Volume Backup
 
 ```sh
 docker run -it --rm\ 
@@ -59,13 +59,7 @@ docker run -it --rm\
 ```
 
 ### Other valids usages:
-
-* Snapshot all volumes for instances that matches,It requires an instance tag
-
-```sh 
-scripts/handleEBS.sh --backup=tag-value IE:  --backup prod* 
-``` 
-    
+     
 * Delete all snapshots older than 7 days by default, It requires a snapshot tag
     
 ```sh 
