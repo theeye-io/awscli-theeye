@@ -34,7 +34,7 @@ Finally I put all this thing to orchestate by adding the monitor defined in *4 i
 ## Oneshot Docker Run
 
 ```sh
-docker run -i -t --rm\
+docker run -i -t --rm \
  -e AWS_ACCESS_KEY_ID=\
  -e AWS_SECRET_ACCESS_KEY=\
  -e AWS_DEFAULT_REGION=us-east-1\
@@ -51,7 +51,7 @@ Snapshot all volumes for instances that matches,It requires an instance tag
 
 
 ```sh
-docker run -it --rm\ 
+docker run -it --rm \ 
  -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
  -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXX \
  -e AWS_DEFAULT_REGION=us-east-1 \  
@@ -86,17 +86,11 @@ scripts/handleEBS.sh --attach=tag-value --instance=instance-id
 
 ## Handle Spot Instances
 ```sh
-docker run -it --rm\
+docker run -it --rm \
 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
 -e AWS_SECRET_ACCESS_KEY=XXXXXXXX \
 -e AWS_DEFAULT_REGION=us-east-1 \
-  quay.io/theeye/awscli-theeye:latest scripts/handleSpotInstances.sh --launchSpot=YourTag* --instancetype=c3.large --zone=us-east-1e --keypair=YourKey --overbid=0.001
-```
-
-other available settings:
-
-```sh
- scripts/handleSpotInstances.sh  --launchSpot=tag-value --instancetype=m1.small --zone=us-east-1e  (optional) --keypair=UseYourKey --targetgroup=arn:aws:elasticloadbalancing:us-west-2:123456789012:targetgroup/my-targets/73e2d6bc24d8a067 --overbid=0.003 --userdata='yourBase64EncodedScript'
+  quay.io/theeye/awscli-theeye:latest scripts/handleSpotInstances.sh --instancetype=m1.small --zone=us-east-1e  (optional) --keypair=UseYourKey --targetgroup=arn:aws:elasticloadbalancing:us-west-2:123456789012:targetgroup/my-targets/73e2d6bc24d8a067 --overbid=0.003 --userdata='yourBase64EncodedScript'
 ```
 
 ## Monitor Healthy instances for a given targetGroup and desired instances
@@ -104,7 +98,7 @@ bash targetGroups.sh arn:aws:elasticloadbalancing:us-east-1:xxxxxx:targetgroup/x
 
 ## Clean Up unused AMIs
 ```sh
-docker run -it --rm\
+docker run -it --rm \
 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXX \
 -e AWS_SECRET_ACCESS_KEY=XXXXXXXX \
 -e AWS_DEFAULT_REGION=us-east-1 \
@@ -116,7 +110,7 @@ docker run -it --rm\
 ## Persist Configuration, and mount your path inside the docker for scripting purpouses 
 
 ```sh
-docker run -i -t --rm\
+docker run -i -t --rm \
  -v $HOME/.aws:/home/aws/.aws\
  -v $PWD:/src -w /src\
   quay.io/theeye/awscli-theeye:latest configure --profile PROFILE_NAME
