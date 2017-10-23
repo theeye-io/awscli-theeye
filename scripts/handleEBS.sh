@@ -132,7 +132,7 @@ function createfrom_ebs () {
        INSTANCENAME="$INSTANCENAME-$(date +"%m_%d")" 
        echo "Creating instance $INSTANCENAME from Snapshot $snapshot"
      fi
-     createAMI=$(aws ec2 register-image --name $INSTANCENAME --architecture x86_64  --virtualization-type hvm  --root-device-name "/dev/sda1" --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=$snapshot $VOLUMESIZE,VolumeType=gp2}")
+     createAMI=$(aws ec2 register-image --name "$INSTANCENAME" --architecture x86_64  --virtualization-type hvm  --root-device-name "/dev/sda1" --block-device-mappings "DeviceName=/dev/sda1,Ebs={SnapshotId=$snapshot $VOLUMESIZE,VolumeType=gp2}")
      echo "Done Creating AMI from EBS $createAMI"
 }
 

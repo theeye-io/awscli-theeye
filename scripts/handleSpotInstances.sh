@@ -98,7 +98,7 @@ function launchSpot () {
 	       {$KEYPAIR \"ImageId\":\"$newestAMI\",  
 	       \"InstanceType\": \"$INSTANCE_TYPE\", 
 	       \"SubnetId\":\"$vpcID\" $userdata $securityGroups }"|jq .SpotInstanceRequests[].SpotInstanceRequestId| sed 's/"//g')
-     if [ -z $TARGET ];then
+     if [ -z "$TARGET" ];then
        echo " Request $spotReq subbmited"
      else
        echo " Waiting for the spot request to launch an instance"
