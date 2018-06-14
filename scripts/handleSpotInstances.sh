@@ -100,13 +100,20 @@ function launchSpot () {
      
      if [ "$newestAMI" == "null" ];then echo "AMI not found with TAG: $TAG" ; echo "failure" ; exit ; fi
      
-     echo "Launching a $INSTANCE_TYPE using AMI $newestAMI"
+     echo "Launching a $INSTANCE_TYPE VolumeType $VOLUME_TYPE TAG $TAG AMI $newestAMI bidPrice $bidPrice Zone $ZONE"
      #Echo finding the subnet ID for a given Zone
      vpcID=$(aws ec2 describe-subnets --filters "Name=availability-zone,Values=$ZONE" | jq -r .Subnets[].SubnetId)
      spotReq=$(aws ec2 request-spot-instances --spot-price "$bidPrice" --instance-count 1 --type "one-time" --launch-specification " 
 	       {$KEYPAIR \"ImageId\":\"$newestAMI\",
 	       \"InstanceType\": \"$INSTANCE_TYPE\",
-	       \"VolumeType\": \"$VOLUME_TYPE\",
+         \"BlockDeviceMappings\": [ 
+           {
+             \"DeviceName\": \"/dev/sda1\",
+             \"Ebs\": { 
+               \"VolumeType\": \"$VOLUME_TYPE\" 
+             } 
+           } 
+         ],
 	       \"SubnetId\":\"$vpcID\" $userdata $securityGroups }"|jq .SpotInstanceRequests[].SpotInstanceRequestId| sed 's/"//g')
      if [ -z "$TARGET" ];then
        echo " Request $spotReq subbmited"
